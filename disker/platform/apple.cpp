@@ -16,7 +16,7 @@ std::vector<PlatformInterface::Path> ApplePlatform::favourites() const {
     const auto home = Path(getenv("HOME"));
 
     std::vector<Path> paths = {
-        home, home / "downloads", home / "documents", home / "pictures", home / "novies", home / "music",
+        home, home / "downloads", home / "documents", home / "pictures", home / "movies", home / "music",
     };
 
     const auto fn_not_exist = [](const Path& path) { return !std::filesystem::exists(path); };

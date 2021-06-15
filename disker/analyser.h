@@ -8,6 +8,7 @@
 #include <thread>
 #include <vector>
 
+#include "disker/helpers/flat_tree.h"
 #include "disker/helpers/synchronized.h"
 
 namespace disker {
@@ -30,21 +31,17 @@ class DiskAnalyser {
     using Path = PlatformInterface::Path;
 
     struct File {
+        using Size = std::uintmax_t;
         Path path;
-        std::uintmax_t size = 0;
+        Size size = 0;
 
         std::string name() const { return path.filename().string(); }
     };
 
-    struct Folder : File {
-        std::vector<File> files;
-        std::vector<Folder> folders;
-    };
-
     struct State {
-        std::optional<Folder> folder;
-        double percentage;  // note(will.brennan) - 0 to 1
-        bool completed;
+        FlatTree<File> tree;
+        double percentage = 0.0;  // note(will.brennan) - 0 to 1
+        bool completed = false;
     };
 
     using Fn = std::function<void(const State&)>;
@@ -59,11 +56,16 @@ class DiskAnalyser {
     }
 
   private:
-    Synchronized<State> sync_state_;
+    Synchronized<State> sync_state_ = State{};
     std::thread thread_;
 };
 
+std::ostream& operator<<(std::ostream& stream, const DiskAnalyser::File& file);
+
 namespace detail {
-void recurse_structure(DiskAnalyser::Folder& folder);
+DiskAnalyser::File::Size total_size(const std::vector<DiskAnalyser::File>::const_iterator& begin,
+                                    const std::vector<DiskAnalyser::File>::const_iterator& end);
+
+FlatTree<DiskAnalyser::File> analyse(const DiskAnalyser::Path& path);
 }  // namespace detail
 }  // namespace disker

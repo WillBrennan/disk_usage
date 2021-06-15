@@ -9,6 +9,7 @@
 #endif
 
 #include <numeric>
+#include <stack>
 
 #include "disker/logging.h"
 
@@ -31,40 +32,97 @@ PlatformInterface& platform() {
 
 DiskAnalyser::DiskAnalyser(Path path) {
     thread_ = std::thread([this, path] {
-        auto folder = Folder{path};
-        detail::recurse_structure(folder);
-        sync_state_.withWLock([&folder](State& state) { state.folder = std::move(folder); });
+        auto tree = detail::analyse(path);
+        sync_state_.withWLock([tree = std::move(tree)](State& state) {
+            state.tree = std::move(tree);
+            state.completed = true;
+        });
     });
 }
 
 DiskAnalyser::~DiskAnalyser() { thread_.join(); }
 
-namespace detail {
-void recurse_structure(DiskAnalyser::Folder& folder) {
-    for (auto& entry : std::filesystem::directory_iterator(folder.path)) {
-        const auto& path = entry.path();
-        if (std::filesystem::is_directory(path)) {
-            auto& subfolder = folder.folders.emplace_back(DiskAnalyser::Folder{path});
-            recurse_structure(subfolder);
-            folder.size += subfolder.size;
-        } else if (std::filesystem::is_regular_file(path)) {
-            auto file = DiskAnalyser::File{};
-            file.path = path;
-            file.size = std::filesystem::file_size(path);
-            folder.files.emplace_back(file);
+std::ostream& operator<<(std::ostream& stream, const DiskAnalyser::File& file) {
+    stream << "{";
+    stream << " path: " << file.path;
+    stream << " size: " << file.size;
+    stream << "}";
+    return stream;
+}
 
-            folder.size += file.size;
-        } else {
-            logger::warn("skipping " + path.filename().string() + " not directory or file");
+namespace detail {
+DiskAnalyser::File::Size total_size(const std::vector<DiskAnalyser::File>::const_iterator& begin,
+                                    const std::vector<DiskAnalyser::File>::const_iterator& end) {
+    using File = DiskAnalyser::File;
+    return std::accumulate(begin, end, 0u, [](File::Size acc, const File& file) { return file.size + acc; });
+}
+
+FlatTree<DiskAnalyser::File> analyse(const DiskAnalyser::Path& path) {
+    using File = DiskAnalyser::File;
+    namespace fs = std::filesystem;
+    FlatTree<File> tree;
+
+    std::vector<int> idx_to_process;
+    idx_to_process.reserve(10);
+
+    auto idx = tree.emplace(FlatTree<File>::NoParent, File{path, 0});
+    idx_to_process.emplace_back(idx);
+
+    std::vector<File> folders;
+    std::vector<File> files;
+
+    while (!idx_to_process.empty()) {
+        auto idx = idx_to_process.back();
+        idx_to_process.pop_back();
+
+        const auto& folder = tree.at(idx);
+
+        logger::debug("collecting children file entries");
+        files.clear();
+        folders.clear();
+
+        for (const auto& entry : fs::directory_iterator(folder.path)) {
+            const auto& subpath = entry.path();
+
+            if (fs::is_directory(subpath)) {
+                folders.emplace_back(File{subpath, 0});
+            } else if (fs::is_regular_file(subpath)) {
+                const auto size = std::filesystem::file_size(subpath);
+                files.emplace_back(File{subpath, size});
+            }
+        }
+
+        const auto fn_by_name = [](const File& lhs, const File& rhs) { return lhs.name() < rhs.name(); };
+        const auto fn_by_size = [](const File& lhs, const File& rhs) { return lhs.size > rhs.size; };
+        // note(will.brennan):
+        // this cant be by size... folders dont have the correct size until the tree has been fully populated
+        std::sort(folders.begin(), folders.end(), fn_by_name);
+        std::sort(files.begin(), files.end(), fn_by_size);
+
+        logger::debug("adding file sizes to their parents to the root");
+        const auto total_file_sizes = total_size(files.begin(), files.end());
+
+        {
+            auto parent_idx = idx;
+            while (parent_idx != FlatTree<File>::NoParent) {
+                auto& parent = tree.at(parent_idx);
+                parent.size += total_file_sizes;
+                parent_idx = tree.parent(parent_idx);
+            }
+        }
+
+        logger::debug("adding children to tree");
+        for (auto&& folder : folders) {
+            const auto child_idx = tree.emplace(idx, std::move(folder));
+            idx_to_process.emplace_back(child_idx);
+        }
+
+        for (auto&& file : files) {
+            tree.emplace(idx, std::move(file));
         }
     }
 
-    const auto fn_size = [](const DiskAnalyser::File& lhs, const DiskAnalyser::File& rhs) {
-        return lhs.size < rhs.size;
-    };
-
-    std::sort(folder.folders.rbegin(), folder.folders.rend(), fn_size);
-    std::sort(folder.files.rbegin(), folder.files.rend(), fn_size);
+    return tree;
 }
 }  // namespace detail
 }  // namespace disker

@@ -1,14 +1,20 @@
 #pragma once
 
+#include <QPieSeries>
 #include <QString>
 #include <QTimer>
 #include <QTreeWidgetItem>
 #include <QWidget>
+#include <QtCharts>
 #include <filesystem>
 #include <memory>
 #include <optional>
+#include <tuple>
+#include <unordered_map>
+#include <vector>
 
 #include "disker/analyser.h"
+#include "disker/helpers/flat_tree.h"
 
 namespace Ui {
 class analyser;
@@ -20,6 +26,8 @@ class AnalyserWidget final : public QWidget {
 
   public:
     using Path = std::filesystem::path;
+    using File = DiskAnalyser::File;
+    using Index = FlatTree<File>::Index;
 
     AnalyserWidget(Path path, QWidget* parent = nullptr);
     ~AnalyserWidget();
@@ -28,11 +36,14 @@ class AnalyserWidget final : public QWidget {
     void refresh();
     void update();
 
+    void updateChartFromItem(QTreeWidgetItem* item, int col);
+    void updateChartFromChange(QTreeWidgetItem* curr, QTreeWidgetItem* prev);
+    void updateChart(Index file_idx);
+
+    void clickedChart(QPieSlice* slice);
+
   private:
-    struct Parent {
-        QTreeWidgetItem* widget = nullptr;
-        std::size_t idx;
-    };
+    using IndexedSlice = std::tuple<QPieSlice*, Index>;
 
     std::unique_ptr<Ui::analyser> ui_;
     QTimer timer_;
@@ -41,5 +52,12 @@ class AnalyserWidget final : public QWidget {
     Path path_;
     DiskAnalyser::State state_;
     bool populated_ = false;
+
+    QPieSeries* series_ = nullptr;
+    QChartView* chart_view_ = nullptr;
+
+    Index selected_chart_ = FlatTree<File>::NoParent;
+    std::vector<QTreeWidgetItem*> widgets_;
+    std::vector<IndexedSlice> slices_;
 };
 }  // namespace disker

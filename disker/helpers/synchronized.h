@@ -9,7 +9,6 @@ namespace disker {
 template <class T>
 class Synchronized {
   public:
-    Synchronized() = default;
     Synchronized(T value) : value_(std::move(value)) {}
 
     Synchronized(const Synchronized&) = delete;

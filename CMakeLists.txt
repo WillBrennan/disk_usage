@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
+set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
 find_package(GTest  REQUIRED)
 find_package(Qt6 COMPONENTS Core Widgets Charts REQUIRED)
@@ -43,6 +44,9 @@ add_library(disker
     disker/logging.cpp
     disker/analyser.h
     disker/analyser.cpp
+    disker/helpers/synchronized.h
+    disker/helpers/flat_tree.h
+    disker/helpers/flat_tree.cpp
     ${analyser_sources}
     ${ui_sources}
 )

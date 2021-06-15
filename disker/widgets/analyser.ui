@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1000</width>
-    <height>365</height>
+    <height>762</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -26,6 +26,29 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="4" column="1">
+    <layout class="QGridLayout" name="chartLayout">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetMinimumSize</enum>
+     </property>
+    </layout>
+   </item>
+   <item row="6" column="0">
+    <widget class="QPushButton" name="refreshButton">
+     <property name="maximumSize">
+      <size>
+       <width>150</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="text">
+      <string>Refresh</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout"/>
+   </item>
    <item row="4" column="0">
     <widget class="QTreeWidget" name="tree">
      <property name="maximumSize">
@@ -41,33 +64,7 @@
      </column>
     </widget>
    </item>
-   <item row="4" column="7" colspan="2">
-    <widget class="QLabel" name="chart">
-     <property name="maximumSize">
-      <size>
-       <width>650</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>TextLabel</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="8">
-    <widget class="QPushButton" name="refreshButton">
-     <property name="maximumSize">
-      <size>
-       <width>150</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="text">
-      <string>Refresh</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0">
+   <item row="7" column="0">
     <widget class="QCheckBox" name="checkBox">
      <property name="text">
       <string>Display Files</string>
