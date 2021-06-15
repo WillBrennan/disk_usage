@@ -20,6 +20,7 @@ class DiskerWidget final : public QWidget {
 
   private slots:
     void addAnalyser(const std::filesystem::path& path);
+    void closeTab(int tab_idx) const;
 
   private:
     std::unique_ptr<Ui::disker> ui_;
