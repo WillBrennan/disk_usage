@@ -28,5 +28,9 @@ void info(const std::string_view& msg);
 void debug(const std::string_view& msg);
 
 void check(bool passes, const std::string_view& msg);
+
+void check_eq(int a, int b, const std::string_view& msg);
+
+void check_eq(std::uintmax_t a, std::uintmax_t b, const std::string_view& msg);
 }  // namespace logger
 }  // namespace disker
