@@ -47,6 +47,8 @@ add_library(disker
     disker/helpers/synchronized.h
     disker/helpers/flat_tree.h
     disker/helpers/flat_tree.cpp
+    disker/widgets/style.h
+    disker/widgets/style.cpp
     ${analyser_sources}
     ${ui_sources}
 )
