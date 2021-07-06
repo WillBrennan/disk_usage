@@ -35,6 +35,7 @@ class AnalyserWidget final : public QWidget {
   private slots:
     void refresh();
     void update();
+    void deleteItem();
 
     void updateChartFromItem(QTreeWidgetItem* item, int col);
     void updateChartFromChange(QTreeWidgetItem* curr, QTreeWidgetItem* prev);

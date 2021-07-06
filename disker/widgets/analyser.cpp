@@ -1,6 +1,7 @@
 #include "disker/widgets/analyser.h"
 
 #include <QList>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QTreeWidget>
 #include <chrono>
@@ -64,6 +65,7 @@ AnalyserWidget::AnalyserWidget(Path path, QWidget* parent)
     connect(ui_->tree, &QTreeWidget::itemClicked, this, &AnalyserWidget::updateChartFromItem);
     connect(ui_->tree, &QTreeWidget::currentItemChanged, this, &AnalyserWidget::updateChartFromChange);
     connect(series_, &QPieSeries::clicked, this, &AnalyserWidget::clickedChart);
+    connect(ui_->deleteButton, &QPushButton::clicked, this, &AnalyserWidget::deleteItem);
 }
 
 AnalyserWidget::~AnalyserWidget() = default;
@@ -123,6 +125,42 @@ void AnalyserWidget::update() {
 
     logger::check_eq(tree.size(), widgets_.size(), "failed to populate widgets correctly!");
     updateChart(0);
+}
+
+void AnalyserWidget::deleteItem() {
+    const auto item = ui_->tree->currentItem();
+
+    const auto iter = std::find(widgets_.begin(), widgets_.end(), item);
+    if (iter == widgets_.end()) {
+        QMessageBox msg;
+        msg.setText("Must select an item to delete");
+        msg.setDefaultButton(QMessageBox::Ok);
+        msg.exec();
+        return;
+    }
+
+    const auto idx = std::distance(widgets_.begin(), iter);
+    const auto& file = state_.tree.at(idx);
+
+    const auto& path = file.path;
+    const auto path_name = QString::fromStdString(file.name());
+
+    QMessageBox msg;
+    msg.setText("Do you wish to delete " + path_name + "?");
+    msg.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msg.setDefaultButton(QMessageBox::No);
+    const auto choice = QMessageBox::StandardButton(msg.exec());
+
+    if (choice == QMessageBox::No) {
+        logger::info("decided to not delete it...");
+        return;
+    }
+
+    logger::info("deleting file...");
+    const auto num_removed = std::filesystem::remove_all(path);
+    logger::info("removed " + std::to_string(num_removed) + " items");
+
+    refresh();
 }
 
 void AnalyserWidget::updateChartFromItem(QTreeWidgetItem* item, int col) {

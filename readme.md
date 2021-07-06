@@ -23,11 +23,11 @@ cmake -DCMAKE_PREFIX_PATH=~/Qt/6.2.0/gcc_64 ..
     - Folder* -> QPieSlice*
     - Folder* -> QTreeWidgetItem*
     - QPieSlice* -> Folder*
+- freezing when clicking on app...
 
 ### doing 
 - apply styling theme to App to make it all look nice
 - add appveyor for CI / CD 
-- freezing when clicking on app...
 
 ### priorities
 - add donate button
