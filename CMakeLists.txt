@@ -9,8 +9,16 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
-find_package(GTest  REQUIRED)
 find_package(Qt6 COMPONENTS Core Widgets Charts REQUIRED)
+
+include(FetchContent)
+FetchContent_Declare(
+  googletest
+  URL https://github.com/google/googletest/archive/refs/tags/release-1.11.0.zip
+)
+# For Windows: Prevent overriding the parent project's compiler/linker settings
+set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(googletest)
 
 qt_wrap_ui(ui_sources
     disker/ui/disker.ui 
@@ -61,6 +69,9 @@ add_executable(test_disker
     ${test_sources}
 )
 target_link_libraries(test_disker disker GTest::gtest_main GTest::gtest GTest::gmock)
+add_test(test_disker test_disker)
+
+enable_testing()
 
 add_executable(app app.cpp)
 target_link_libraries(app disker Qt6::Core Qt6::Widgets Qt6::Charts)

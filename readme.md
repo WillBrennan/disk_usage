@@ -24,10 +24,10 @@ cmake -DCMAKE_PREFIX_PATH=~/Qt/6.2.0/gcc_64 ..
     - Folder* -> QTreeWidgetItem*
     - QPieSlice* -> Folder*
 - freezing when clicking on app...
+- apply styling theme to App to make it all look nice
 
 ### doing 
-- apply styling theme to App to make it all look nice
-- add appveyor for CI / CD 
+- add appveyor for CI / CD
 
 ### priorities
 - add donate button
@@ -37,4 +37,4 @@ cmake -DCMAKE_PREFIX_PATH=~/Qt/6.2.0/gcc_64 ..
 - handle not being able to access a folder
 - add disk finder to show all drives attached
 - fix size ordering for folders? no easy way...
-- display total storage and size of drive in selection_widget... maybe with bar chart? 
+- display total storage and size of drive in selection_widget... maybe with bar chart?
