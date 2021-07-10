@@ -9,7 +9,7 @@ namespace logger {
 struct DefaultLogger final : LoggerInterface {
     ~DefaultLogger() = default;
 
-    void debug(const std::string_view& msg) override { std::clog << "[debug] - " << msg << '\n'; }
+    void debug(const std::string_view& msg) override {}
     void info(const std::string_view& msg) override { std::clog << "[info] - " << msg << '\n'; }
     void warn(const std::string_view& msg) override { std::cerr << "[warn] - " << msg << '\n'; }
     void error(const std::string_view& msg) override { std::cerr << "[error] - " << msg << '\n'; }
