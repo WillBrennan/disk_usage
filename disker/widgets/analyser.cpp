@@ -43,12 +43,13 @@ AnalyserWidget::AnalyserWidget(Path path, QWidget* parent)
         series_ = new QPieSeries();
         series_->setHoleSize(0.35);
         series_->setPieSize(0.7);
-        series_->setLabelsVisible();
+        series_->setPieStartAngle(-45);
+        series_->setPieEndAngle(-45 + 360);
 
         chart_view_ = new QChartView(this);
         chart_view_->setRenderHint(QPainter::Antialiasing);
         chart_view_->chart()->addSeries(series_);
-        chart_view_->chart()->legend()->hide();
+        chart_view_->chart()->legend()->setAlignment(Qt::AlignRight);
 
         chart_view_->chart()->setBackgroundVisible(false);
 
@@ -234,7 +235,13 @@ void AnalyserWidget::updateChart(Index file_idx) {
         return;
     }
 
-    auto fn_file_to_slice = [this](const IndexedFile& i) {
+    const auto fn_sum_size = [](File::Size acc, const IndexedFile& i) { return i.file.size + acc; };
+
+    auto& tree = state_.tree;
+    const auto& folder = tree.at(file_idx);
+    const auto& node = tree.node(file_idx);
+
+    auto fn_file_to_slice = [this, &folder](const IndexedFile& i) {
         const auto name = i.file.path.filename().string();
 
         const auto file_size = this->locale().formattedDataSize(i.file.size);
@@ -242,8 +249,10 @@ void AnalyserWidget::updateChart(Index file_idx) {
         const auto title = QString::fromStdString(name) + " " + file_size;
 
         const auto slice = series_->append(title, i.file.size);
-        slice->setLabelVisible();
-        slice->setPen(QPen(Qt::black, 2));
+
+        const auto is_small = i.file.size < 0.25 * folder.size;
+        slice->setExploded(is_small);
+        slice->setLabelVisible(!is_small);
         return slice;
     };
 
@@ -251,12 +260,6 @@ void AnalyserWidget::updateChart(Index file_idx) {
         auto slice = fn_file_to_slice(i);
         slices_.emplace_back(slice, i.idx);
     };
-
-    const auto fn_sum_size = [](File::Size acc, const IndexedFile& i) { return i.file.size + acc; };
-
-    auto& tree = state_.tree;
-    const auto& folder = tree.at(file_idx);
-    const auto& node = tree.node(file_idx);
 
     std::vector<IndexedFile> files;
     std::vector<IndexedFile> folders;
