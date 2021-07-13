@@ -51,13 +51,17 @@ make test
 - make fancy readme
 - publish!
 - handle not being able to access a folder
+- stop console window for appearing
 
 ### doing 
 - add appveyor for CI / CD
 
 ### priorities
-- add donate button
+- add nice icons
+- fix hang when search has finished in the Analyser widget (caused by lots of work in the Qt thread...)
+    - slowly updating the QTreeWidget would amortize this cost over the search so nobody realises...
 - show loading bar correctly
 - add disk finder to show all drives attached
 - fix size ordering for folders? no easy way...
 - display total storage and size of drive in selection_widget... maybe with bar chart?
+- add donate button

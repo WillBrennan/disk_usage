@@ -39,7 +39,7 @@ elseif(UNIX AND NOT APPLE)
 else()
 endif()
 
-add_library(disker
+add_library(disker_lib
     disker/widgets/disker.h
     disker/widgets/disker.cpp 
     disker/widgets/selector.h
@@ -60,21 +60,28 @@ add_library(disker
     ${analyser_sources}
     ${ui_sources}
 )
-target_link_libraries(disker Qt6::Core Qt6::Widgets Qt6::Charts)
-target_include_directories(disker PUBLIC ${PROJECT_SOURCE_DIR})
+target_link_libraries(disker_lib Qt6::Core Qt6::Widgets Qt6::Charts)
+target_include_directories(disker_lib PUBLIC ${PROJECT_SOURCE_DIR})
 
 add_executable(test_disker
     test/test_logging.cpp
     test/helpers/test_synchronized.cpp
     ${test_sources}
 )
-target_link_libraries(test_disker disker GTest::gtest_main GTest::gtest GTest::gmock)
+target_link_libraries(test_disker disker_lib GTest::gtest_main GTest::gtest GTest::gmock)
 add_test(test_disker test_disker)
 
 enable_testing()
 
-add_executable(app app.cpp)
-target_link_libraries(app disker Qt6::Core Qt6::Widgets Qt6::Charts)
+if(APPLE)
+    add_executable(Disker MACOSX_BUNDLE app.cpp)
+elseif(WIN32)
+    add_executable(Disker WIN32_EXECUTABLE app.cpp)
+else()
+    add_executable(Disker app.cpp)
+endif()
+
+target_link_libraries(Disker disker_lib Qt6::Core Qt6::Widgets Qt6::Charts)
 
 find_program(clang_format "clang-format")
 if(clang_format)
