@@ -81,15 +81,23 @@ FlatTree<DiskAnalyser::File> analyse(const DiskAnalyser::Path& path) {
         files.clear();
         folders.clear();
 
-        for (const auto& entry : fs::directory_iterator(folder.path)) {
+        std::error_code ec;
+
+        for (const auto& entry : fs::directory_iterator(folder.path, ec)) {
             const auto& subpath = entry.path();
 
-            if (fs::is_directory(subpath)) {
+            if (fs::is_symlink(subpath)) {
+                continue;
+            } else if (fs::is_directory(subpath)) {
                 folders.emplace_back(File{subpath, 0});
             } else if (fs::is_regular_file(subpath)) {
                 const auto size = std::filesystem::file_size(subpath);
                 files.emplace_back(File{subpath, size});
             }
+        }
+
+        if (ec) {
+            continue;
         }
 
         const auto fn_by_name = [](const File& lhs, const File& rhs) { return lhs.name() < rhs.name(); };

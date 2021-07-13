@@ -49,15 +49,15 @@ make test
 - freezing when clicking on app...
 - apply styling theme to App to make it all look nice
 - make fancy readme
+- publish!
+- handle not being able to access a folder
 
 ### doing 
 - add appveyor for CI / CD
 
 ### priorities
 - add donate button
-- publish!
 - show loading bar correctly
-- handle not being able to access a folder
 - add disk finder to show all drives attached
 - fix size ordering for folders? no easy way...
 - display total storage and size of drive in selection_widget... maybe with bar chart?

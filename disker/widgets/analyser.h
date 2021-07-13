@@ -58,6 +58,7 @@ class AnalyserWidget final : public QWidget {
     QChartView* chart_view_ = nullptr;
 
     Index selected_chart_ = FlatTree<File>::NoParent;
+    // note(will.brennan) - we should store unordered maps instead of using std::find on these
     std::vector<QTreeWidgetItem*> widgets_;
     std::vector<IndexedSlice> slices_;
 };
