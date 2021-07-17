@@ -1,0 +1,26 @@
+FROM    ubuntu
+ENV     DEBIAN_FRONTEND=noninteractive
+
+RUN     apt update
+RUN     apt install -yq g++ build-essential mesa-common-dev pip libssl-dev wget
+
+# build and install Qt6
+RUN     pip install aqtinstall
+
+# build and install the latest version of cmake...
+RUN     wget https://github.com/Kitware/CMake/releases/download/v3.20.0/cmake-3.20.0.tar.gz
+RUN     tar -zxvf cmake-3.20.0.tar.gz && \
+        cd cmake-3.20.0 && \
+        ./bootstrap && \
+        make && \
+        make install
+
+RUN     aqt install -O qt 6.2.0 linux desktop -m qtcharts
+
+RUN     mkdir -p ./disker/build
+COPY    . disker/
+WORKDIR /disker/build
+RUN     rm -rf * && \ 
+        cmake .. -DCMAKE_PREFIX_PATH=/qt/6.2.0/gcc_64/ && \ 
+        make && \ 
+        make test
