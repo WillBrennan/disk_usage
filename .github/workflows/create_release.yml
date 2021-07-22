@@ -1,0 +1,22 @@
+name: create_release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'New DiskUsage Version'
+        required: true
+        default: 'YYYY.MM'
+
+jobs:
+  linux_build:
+    needs: [update_ml_version]
+    name: Build DiskUsage (Linux)
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install Qt
+      uses: jurplel/install-qt-action@v2
+      with:
+        version: '6.2.0'
+        modules: 'qtcharts'

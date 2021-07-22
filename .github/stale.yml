@@ -1,0 +1,12 @@
+daysUntilStale: 60
+daysUntilClose: 14
+onlyLabels: []
+exemptLabels: []
+exemptProjects: false
+exemptMilestones: false
+exemptAssignees: false
+staleLabel: wontfix
+
+markComment: >
+  This issue has been automatically marked as stale because it has not had recent activity.
+limitPerRun: 10
