@@ -32,13 +32,14 @@ jobs:
       run: |
         mkdir build && cd build && 
         cmake .. -DCMAKE_PREFIX_PATH=/home/runner/work/disk_usage/disk_usage/qt/6.2.0/gcc_64 && make -j4
-  windows_build:
-    name: Build DiskUsage (Windows)
-    runs-on: windows-latest
+  macos_build:
+    name: Build DiskUsage (OS X)
+    runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Setup MSVC
-      uses: ilammy/msvc-dev-cmd@v1
+    - name: Install dependencies
+      run: |
+       brew install wget
     - name: Set up Python 3.x
       uses: actions/setup-python@v2
       with:
@@ -56,3 +57,27 @@ jobs:
       run: |
         mkdir build && cd build && 
         cmake .. -DCMAKE_PREFIX_PATH=/Users/runner/work/disk_usage/disk_usage/qt/6.2.0/macos && make -j4
+  windows_build:
+    name: Build DiskUsage (Windows)
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+    - name: Set up Python 3.x
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x
+    - name: Install qt
+      run: | 
+        pip install yaqti &&
+        python -m yaqti install --version 6.2.0 --platform desktop --os windows --modules qtcharts
+    - name: Install cmake 
+      run: |
+        mkdir cmake && cd cmake &&
+        Invoke-WebRequest -Uri https://github.com/Kitware/CMake/releases/download/v3.21.1/cmake-3.21.1-windows-x86_64.msi -OutFile cmake-3.21.1-windows-x86_64.msi &&
+        ./cmake-3.21.1-windows-x86_64.msi --skip-license
+    - name: Build Disk Analyser
+      run: |
+        mkdir build && cd build && 
+        cmake .. -DCMAKE_PREFIX_PATH=/Users/runner/work/disk_usage/disk_usage/qt/6.2.0/windows && make -j4
