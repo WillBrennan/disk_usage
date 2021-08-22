@@ -46,13 +46,13 @@ jobs:
     - name: Install qt
       run: | 
         pip install yaqti &&
-        python -m yaqti install --version 6.2.0 --platform desktop --os mac --modules qtcharts
+        python -m yaqti install --version 6.2.0 --platform desktop --os windows --modules qtcharts
     - name: Install cmake 
       run: |
         mkdir cmake && cd cmake &&
-        wget https://github.com/Kitware/CMake/releases/download/v3.21.0/cmake-3.21.0-linux-x86_64.sh &&
-        sh ./cmake-3.21.0-linux-x86_64.sh --skip-license
+        Invoke-WebRequest -Uri https://github.com/Kitware/CMake/releases/download/v3.21.1/cmake-3.21.1-windows-x86_64.msi -OutFile cmake-3.21.1-windows-x86_64.msi &&
+        ./cmake-3.21.1-windows-x86_64.msi --skip-license
     - name: Build Disk Analyser
       run: |
         mkdir build && cd build && 
-        cmake .. -DCMAKE_PREFIX_PATH=/Users/runner/work/disk_usage/disk_usage/qt/6.2.0/macos && make -j4
+        cmake .. -DCMAKE_PREFIX_PATH=/Users/runner/work/disk_usage/disk_usage/qt/6.2.0/windows && make -j4
