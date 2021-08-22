@@ -32,3 +32,28 @@ jobs:
       run: |
         mkdir build && cd build && 
         cmake .. -DCMAKE_PREFIX_PATH=/home/runner/work/disk_usage/disk_usage/qt/6.2.0/gcc_64 && make -j4
+  macos_build:
+    name: Build DiskUsage (OS X)
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: |
+       brew install wget
+    - name: Set up Python 3.x
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.x
+    - name: Install qt
+      run: | 
+        pip install yaqti &&
+        python -m yaqti install --version 6.2.0 --platform desktop --os mac --modules qtcharts
+    - name: Install cmake 
+      run: |
+        mkdir cmake && cd cmake &&
+        wget https://github.com/Kitware/CMake/releases/download/v3.21.0/cmake-3.21.0-linux-x86_64.sh &&
+        sh ./cmake-3.21.0-linux-x86_64.sh --skip-license
+    - name: Build Disk Analyser
+      run: |
+        mkdir build && cd build && 
+        cmake .. -DCMAKE_PREFIX_PATH=/Users/runner/work/disk_usage/disk_usage/qt/6.2.0/macos && make -j4
